@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: hello3-perl
+  labels:
+    app: hello3-perl
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 10.3.240.24
+    path: /exports
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: hello3-perl
+  labels:
+    app: hello3-perl
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: hello3-perl
+  labels:
+    app: hello3-perl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello3-perl
+  template:
+    metadata:
+      labels:
+        app: hello3-perl
+    spec:
+      containers:
+        - image: mgrenier/apache-perl
+          name: hello3-perl
+          ports:
+            - containerPort: 80
+              name: hello3-perl
+          volumeMounts:
+            - name: hello3-perl-nfs
+              mountPath: /var/www/html/
+              subPath: hello1
+      volumes:
+      - name: hello3-perl-nfs
+        persistentVolumeClaim:
+          claimName: hello3-perl
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello3-perl
+  labels:
+    app: hello3-perl
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      targetPort: 80
+      port: 80
+  selector:
+    app: hello3-perl
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello3-perl
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+  labels:
+    app: hello3-perl
+spec:
+  rules:
+    - host: hello3perl.gcp.lebleu.co
+      http:
+        paths:
+          - backend:
+              serviceName: hello3-perl
+              servicePort: 80
