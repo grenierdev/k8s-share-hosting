@@ -1,3 +1,18 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: busybox
+  labels:
+    app: busybox
+  annotations:
+    volume.beta.kubernetes.io/storage-class: nfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Mi
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -22,11 +37,8 @@ spec:
             - -c
             - 'while true; do date >> /mnt/$(hostname); sleep 0.1; done'
           resources:
-            limits:
-              cpu: 50m
-              memory: 20Mi
             requests:
-              cpu: 20m
+              cpu: 1m
               memory: 10Mi
           volumeMounts:
             - name: busybox-nfs
@@ -35,36 +47,4 @@ spec:
       volumes:
       - name: busybox-nfs
         persistentVolumeClaim:
-          claimName: hello1-perl
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: busybox
-  labels:
-    app: busybox
-spec:
-  type: ClusterIP
-  ports:
-    - name: http
-      targetPort: 80
-      port: 80
-  selector:
-    app: busybox
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: busybox
-  annotations:
-    kubernetes.io/ingress.class: "traefik"
-  labels:
-    app: busybox
-spec:
-  rules:
-    - host: busybox.gcp.lebleu.co
-      http:
-        paths:
-          - backend:
-              serviceName: busybox
-              servicePort: 80
+          claimName: busybox
