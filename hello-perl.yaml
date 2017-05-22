@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
         - image: mgrenier/apache-perl
-          name: hello-perl
+          name: site
           resources:
             requests:
               cpu: 100m
@@ -43,10 +43,21 @@ spec:
             - name: hello-perl-nfs
               mountPath: /var/www/html/
               subPath: public_html
+        - image: atmoz/sftp
+          name: ftp
+          ports:
+            - containerPort: 22
+              name: sftp
+          args:
+            - "hello:perl::0:0"
+          volumeMounts:
+            - name: hello-perl-nfs
+              mountPath: /home/hello/share
+              subPath: public_html
       volumes:
-      - name: hello-perl-nfs
-        persistentVolumeClaim:
-          claimName: hello-perl
+        - name: hello-perl-nfs
+          persistentVolumeClaim:
+            claimName: hello-perl
 ---
 apiVersion: v1
 kind: Service

@@ -18,6 +18,8 @@ Kubernetes default Ingress controller uses Google Cloud Load Balancer (LB). Each
 
 So we'll want to create our own proxy for the forwarding rules. We'll use Traefik which has built-in support for Kubernetes Ingress.
 
+Based on [this](https://blog.osones.com/en/kubernetes-traefik-and-lets-encrypt-at-scale.html), in the future we might be able to use [Kubernetes' builtin etcd](https://github.com/containous/traefik/issues/926).
+
 `kubectl create -f deploy/traefik.1.yaml`
 
 Because of this [bug](https://github.com/containous/traefik/issues/927), we need to manualy delete a key from Consul.
@@ -28,8 +30,9 @@ Only then we can start up Traefik
 
 `kubectl create -f deploy/traefik.2.yaml`
 
-Note the external IP of the traefik service. This IP will be used for your DNS. Might also be a good idea to reserve that IP
+Note the external IP of the traefik service. This IP will be used for your DNS. Might also be a good idea to reserve that IP.
 
 `kubectl --namespace=your-namespace get service --selector="app=traefik"`
 
 ### 3. First pod
+See `hello-perl.yaml`
