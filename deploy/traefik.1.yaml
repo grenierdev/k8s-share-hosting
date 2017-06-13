@@ -94,7 +94,8 @@ spec:
         annotations:
           volume.beta.kubernetes.io/storage-class: nfs
       spec:
-        accessModes: [ "ReadWriteOnce" ]
+        accessModes:
+          - "ReadWriteOnce"
         resources:
           requests:
             storage: 1Gi

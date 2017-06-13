@@ -2,6 +2,11 @@
 
 ## Baby steps to greatness
 
+### 0. Namespace
+Kubernetes allows us to group up resources in namespaces. We'll create a new namespace for our file server and proxy.
+
+``kubectl create -f deploy/ns.yaml`
+
 ### 1. NFS server
 Google Cloud (GCP) does not allows multiple server to mount a single disk in _ReadWrite_ mode. We need to create an NFS server to share a single Persistent Disk (PD) across multiple pods.
 
